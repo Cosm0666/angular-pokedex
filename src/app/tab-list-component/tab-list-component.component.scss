@@ -1,0 +1,98 @@
+.tab-list {
+  width: 100%;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top: 90px;
+  max-width: 410px;
+}
+.tab-btn {
+  position: static;
+  button {
+    font-size: 20px;
+    border: none;
+    background: none;
+    margin: 20px;
+  }
+  button.active{
+    border-bottom: 2px solid black;
+  }
+}
+.tab-label {
+  min-width: 100px;
+  text-align: left;
+  color: #333
+}
+.tab-content {
+  display: flex;
+  align-items: center;              
+  justify-content: flex-start;
+  gap: 0.1rem;
+  margin-top: 8px;
+  position: relative;
+}
+
+.tab-value {
+  flex-wrap: wrap;
+  font-weight: bold
+}
+
+.stats-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat-name {
+  width: 100px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.bar-container {
+  flex-grow: 1;
+  background-color: #eee;
+  overflow: hidden;
+  height: 18px;
+  position: relative;
+}
+
+.bar-fill {
+  height: 100%;
+  transition: width 0.3s ease-in-out;
+}
+
+.stat-value {
+  width: 40px;
+  text-align: right;
+  font-weight: bold;
+}
+
+
+.forms-wrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.evolution-stage {
+  text-align: center;
+  margin: 1rem;
+}
+
+.arrow {
+  font-size: 2rem;
+  margin: 0 0.5rem;
+  justify-content: center;
+  display: flex;
+}

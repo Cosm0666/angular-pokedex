@@ -1,0 +1,94 @@
+<div class="tab-list" *ngIf="pokemonData">
+  <div class="tab-btn">
+    <button
+      (click)="selectedTab('about')"
+      ngClass="about"
+      [ngClass]="{ active: activeTab === 'about' }"
+    >
+      Sobre
+    </button>
+    <button
+      (click)="selectedTab('stats')"
+      class="status"
+      [ngClass]="{ active: activeTab === 'stats' }"
+    >
+      Status
+    </button>
+    <button
+      (click)="selectedTab('forms')"
+      class="forms"
+      [ngClass]="{ active: activeTab === 'forms' }"
+    >
+      Formas
+    </button>
+  </div>
+
+  <div *ngIf="activeTab === 'about'">
+    <div class="tab-content">
+      <span class="tab-label">Peso</span>
+      <span class="tab-value"
+        >{{ pokemonData.weight / 10 | number : "1.1-1" }}kg</span
+      >
+    </div>
+    <div class="tab-content">
+      <span class="tab-label">Altura</span>
+      <span class="tab-value"
+        >{{ pokemonData.height / 10 | number : "1.2-2" }}m</span
+      >
+    </div>
+    <div class="tab-content">
+      <span class="tab-label">Habilidades</span>
+      <span
+        class="tab-value"
+        style="font-weight: bold"
+        *ngFor="let a of pokemonData.abilities; let i = index; let last = last"
+      >
+        {{ a.ability.name }} <span *ngIf="!last">,</span>
+      </span>
+    </div>
+    <div class="tab-content" *ngIf="pokemonData.past_abilities?.length">
+      <span class="tab-label">Geração</span>
+      <span class="tab-value" *ngFor="let g of pokemonData.past_abilities; let i = index; let last = last">
+        {{ g.generation.name }} <span *ngIf="!last">,</span>
+      </span>
+    </div>
+  </div>
+  <div class="stats-wrapper" *ngIf="activeTab === 'stats'">
+    <div class="stat-row" *ngFor="let s of pokemonData.stats">
+      <span class="stat-name">{{ s.stat.name }}</span>
+      <div class="bar-container">
+        <div
+          class="bar-fill"
+          [style.width]="getStatPercentage(s.base_stat) + '%'"
+          style="background-color: black"
+        ></div>
+      </div>
+      <span class="stat-value">{{ s.base_stat }}</span>
+    </div>
+  </div>
+  <div class="forms-wrapper" *ngIf="activeTab === 'forms'">
+    <div *ngIf="evolutionData">
+      <ng-container
+        *ngTemplateOutlet="renderChain; context: { chain: evolutionData.chain }"
+      >
+      </ng-container>
+      <ng-template #renderChain let-chain="chain">
+        <div class="evolution-stage">
+          <img
+            [src]="'https://img.pokemondb.net/sprites/home/normal/' + chain.species.name + '.png'"
+            [alt]="chain.species.name"
+            width="170px"
+            height="170px"
+          />
+          <div>{{ chain.species.name }}</div>
+        </div>
+        <div *ngIf="chain.evolves_to.length > 0" class="arrow">⬇️</div>
+        <ng-container *ngFor="let e of chain.evolves_to">
+          <ng-container
+            *ngTemplateOutlet="renderChain; context: { chain: e }"
+          ></ng-container>
+        </ng-container>
+      </ng-template>
+    </div>
+  </div>
+</div>

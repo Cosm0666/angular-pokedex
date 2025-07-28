@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { PokemonComponent } from './pokemon/pokemon.component';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { TabListComponentComponent } from './tab-list-component/tab-list-component.component';
+
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [PokemonComponent, TabListComponentComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
