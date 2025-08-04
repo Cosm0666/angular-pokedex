@@ -3,7 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   HostListener,
+  ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -23,33 +25,34 @@ import { concatMap, forkJoin, map } from 'rxjs';
   styleUrl: './pokemon.component.scss',
 })
 export class PokemonComponent implements AfterViewInit {
+  @ViewChild('scrollAnchor', {static: true}) anchor!: ElementRef;
   isReseting: boolean = false;
   justReset: boolean = false;
   searched: boolean = false;
   pokemonName: string = '';
   evolutionData?: EvolutionChainResponse;
   pokemonData?: PokemonResponse | null = null;
-
   pokemons: PokemonSummary[] = [];
   nextUrl: string = 'https://pokeapi.co/api/v2/pokemon?offset=0&limit=18';
+  
   isLoading: boolean = false;
-
+  observer!: IntersectionObserver;
   constructor(private http: HttpClient) {}
 
   ngAfterViewInit(): void {
-    this.loadNextPage();
-  }
+    if(typeof window !== 'undefined' && typeof IntersectionObserver !== 'undefined'){
 
-  @HostListener('window:scroll', [])
-  onWindowScroll(): void {
-    
-    const windowHeight = window.innerHeight;
-    const scrollY = window.scrollY || window.pageYOffset;
-    const bodyHeight = document.body.scrollHeight;
-    if (scrollY + windowHeight + 300 >= bodyHeight) {
-      this.loadNextPage();
+      this.observer = new IntersectionObserver(([entry])=> {
+        if(entry.isIntersecting && !this.isLoading){
+          this.loadNextPage();
+        } 
+      });
+      if(this.anchor?.nativeElement){
+        this.observer.observe(this.anchor.nativeElement);
+      }
     }
   }
+
 
   loadNextPage(): void {
     if (!this.nextUrl || this.isLoading) return;
@@ -83,6 +86,10 @@ export class PokemonComponent implements AfterViewInit {
     this.pokemonName = '';
     this.pokemonData = null;
     document.body.style.backgroundColor = 'white';
+
+    if(this.observer && this.anchor?.nativeElement){
+      this.observer.observe(this.anchor.nativeElement)
+    }
   }
 
   formatId(id: number): string {
@@ -123,6 +130,7 @@ export class PokemonComponent implements AfterViewInit {
         const type = data.types[0].type.name;
         const cor = this.typeColor[type] || this.typeColor['default'];
         document.body.style.backgroundColor = cor;
+        if(this.observer) this.observer.disconnect();
       },
       error: () => {
         this.pokemonData = undefined;
