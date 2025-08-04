@@ -11,6 +11,7 @@
 body{
   max-width: 430px;
   margin: 0 auto;
+  max-width: 400px;
 }
 
 body::before {
@@ -28,3 +29,4 @@ body::before {
   z-index: -1;
   transform:translate(-50%, -50%) rotate(-30deg);
 }
+
