@@ -117,6 +117,8 @@ export class PokemonComponent implements AfterViewInit {
       next: (data) => {
         this.pokemonData = data;
         this.searched = true;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
 
         const type = data.types[0].type.name;
         const cor = this.typeColor[type] || this.typeColor['default'];
