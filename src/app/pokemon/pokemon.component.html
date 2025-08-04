@@ -20,7 +20,6 @@
 </button>
 
 <div class="pokedex-wrapper">
- 
   <div class="search-form" *ngIf="!searched">
     <input [(ngModel)]="pokemonName" placeholder="Procurar ex: pikachu" />
     <button class="search-btn" (click)="search()">
@@ -44,16 +43,25 @@
     </button>
   </div>
 
- 
   <div class="pokemon-list" *ngIf="!searched">
-    <div class="pokemon-card" *ngFor="let p of pokemons">
-      <img [src]="p.image" [alt]="p.name" width="100" />
+    <div
+      class="pokemon-card"
+      *ngFor="let p of pokemons"
+      [ngStyle]="{ 'background-color': getTypeColor(p.types[0]) }"
+      (click)="pokemonName = p.name; search()"
+    >
+      <div class="card">
+        <div class="type-list">
+          <div class="type-card" *ngFor="let t of p.types">
+            <span>{{ capitalize(t) }} </span>
+          </div>
+        </div>
+        <img [src]="p.image" [alt]="p.name" width="90" />
+      </div>
       <h3>{{ capitalize(p.name) }}</h3>
-      <button (click)="pokemonName = p.name; search()">Ver mais</button>
     </div>
   </div>
 
-  
   <div class="pokemon-container" *ngIf="pokemonData">
     <div class="pokemon-info">
       <h2>{{ capitalize(pokemonData.name) }}</h2>
@@ -75,6 +83,8 @@
       [src]="pokemonData.sprites.other['official-artwork'].front_default"
       alt="imagem do pokemon"
     />
-    <app-tab-list-component [pokemonData]="pokemonData"></app-tab-list-component>
+    <app-tab-list-component
+      [pokemonData]="pokemonData"
+    ></app-tab-list-component>
   </div>
 </div>

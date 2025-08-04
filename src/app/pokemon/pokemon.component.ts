@@ -1,6 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  HostListener,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   EvolutionChainResponse,
@@ -9,7 +13,7 @@ import {
   PokemonSummary,
 } from '../models/pokemon.model';
 import { TabListComponentComponent } from '../tab-list-component/tab-list-component.component';
-import { forkJoin, map } from 'rxjs';
+import { concatMap, forkJoin, map } from 'rxjs';
 
 @Component({
   selector: 'app-pokemon',
@@ -18,55 +22,67 @@ import { forkJoin, map } from 'rxjs';
   templateUrl: './pokemon.component.html',
   styleUrl: './pokemon.component.scss',
 })
-export class PokemonComponent {
+export class PokemonComponent implements AfterViewInit {
   isReseting: boolean = false;
   justReset: boolean = false;
   searched: boolean = false;
   pokemonName: string = '';
   evolutionData?: EvolutionChainResponse;
   pokemonData?: PokemonResponse | null = null;
-  
 
   pokemons: PokemonSummary[] = [];
+  nextUrl: string = 'https://pokeapi.co/api/v2/pokemon?offset=0&limit=18';
+  isLoading: boolean = false;
+
   constructor(private http: HttpClient) {}
 
-  ngOnInit(): void {
-      this.loadInitialPokemonList();
+  ngAfterViewInit(): void {
+    this.loadNextPage();
   }
-  loadInitialPokemonList(count: number = 30) {
 
-    const maxId = 1020;
-    const randomIds = Array.from(
-      { length: count },
-      () => Math.floor(Math.random() * maxId) + 1
-    );
+  @HostListener('window:scroll', [])
+  onWindowScroll(): void {
+    
+    const windowHeight = window.innerHeight;
+    const scrollY = window.scrollY || window.pageYOffset;
+    const bodyHeight = document.body.scrollHeight;
+    if (scrollY + windowHeight + 300 >= bodyHeight) {
+      this.loadNextPage();
+    }
+  }
 
-    const requests = randomIds.map((id) =>
-      this.http
-        .get<PokemonResponse>(`https://pokeapi.co/api/v2/pokemon/${id}`)
-        .pipe(
-          map((poke) => ({
-            name: poke.name,
-            image: poke.sprites.other['official-artwork'].front_default,
-          }))
-        )
-    );
+  loadNextPage(): void {
+    if (!this.nextUrl || this.isLoading) return;
 
-    forkJoin(requests).subscribe((list) => {
-      this.pokemons = list;
+    this.isLoading = true;
+
+    this.http.get<PokemonListResponse>(this.nextUrl).pipe(
+      concatMap(res => {
+        this.nextUrl = res.next;
+
+        return forkJoin(
+          res.results.map(p =>
+            this.http.get<PokemonResponse>(p.url).pipe(
+              map(data => ({
+                name: data.name,
+                image: data.sprites.other['official-artwork'].front_default,
+                types: data.types.map(t=> t.type.name),
+              }))
+            )
+          )
+        );
+      })
+    ).subscribe(pokemons => {
+      this.pokemons.push(...pokemons);
+      this.isLoading = false;
     });
   }
 
   resetSearch() {
-    this.isReseting = true;
-
-    setTimeout(() => {
-      this.searched = false;
-      this.pokemonName = '';
-      this.pokemonData = null;
-      this.isReseting = false;
-      document.body.style.backgroundColor = 'white';
-    }, 400);
+    this.searched = false;
+    this.pokemonName = '';
+    this.pokemonData = null;
+    document.body.style.backgroundColor = 'white';
   }
 
   formatId(id: number): string {

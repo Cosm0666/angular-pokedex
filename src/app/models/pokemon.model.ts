@@ -66,9 +66,11 @@ export interface EvolutionNode {
 }
 export interface PokemonListResponse {
   results: { name: string; url: string }[];
+  next: string;
 }
 
 export interface PokemonSummary {
   name: string;
   image: string;
+  types: string[];
 }
